@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+d<!DOCTYPE html>
 <html lang="kk">
 <head>
     <meta charset="UTF-8">
@@ -728,5 +728,296 @@ document.getElementById("formulaResult").innerHTML=
 
 showFormula();
 </script>
+/* БЖБ сұрақтары */
+const bjbQuestions = {
+ algebra: [
+  {
+   q: "5x - 7 = 18. x=?",
+   options: ["5", "6", "4", "3"],
+   a: 0
+  },
+  {
+   q: "Түбір деген не?",
+   options: [
+    "Теңдеуді тура теңдікке айналдыратын сан",
+    "Кез келген сан",
+    "Тек оң сан",
+    "Нөл ғана"
+   ],
+   a: 0
+  },
+  {
+   q: "x² = 49. x=?",
+   options: ["7", "7 және -7", "-7", "49"],
+   a: 1
+  },
+  {
+   q: "Теңсіздік деген не?",
+   options: [
+    "Екі өрнектің теңдігі",
+    "Екі өрнектің тең еместігі",
+    "Бір өрнек",
+    "Тек сан"
+   ],
+   a: 1
+  },
+  {
+   q: "3x + 2 > 11. x>?",
+   options: ["2", "3", "4", "5"],
+   a: 1
+  }
+ ],
+ geometry: [
+  {
+   q: "Үшбұрыштың ішкі бұрыштарының қосындысы?",
+   options: ["90°", "180°", "360°", "270°"],
+   a: 1
+  },
+  {
+   q: "Тікбұрышты үшбұрышта гипотенуза қайда?",
+   options: [
+    "Тік бұрышқа қарсы",
+    "Тік бұрышта",
+    "Катетте",
+    "Сыртта"
+   ],
+   a: 0
+  },
+  {
+   q: "Параллель түзулер қиылыса ма?",
+   options: ["Иә", "Жоқ", "Кейде", "Тек кеңістікте"],
+   a: 1
+  },
+  {
+   q: "Шеңбердің диаметрі радиустан қанша есе үлкен?",
+   options: ["2 есе", "3 есе", "4 есе", "1 есе"],
+   a: 0
+  },
+  {
+   q: "Тік төртбұрыштың ауданы қалай табылады?",
+   options: ["a+b", "a*b", "2(a+b)", "a/b"],
+   a: 1
+  }
+ ],
+ logic: [
+  {
+   q: "Егер барлық A - B, ал кейбір B - C болса, онда?",
+   options: [
+    "Кейбір A - C",
+    "Барлық A - C",
+    "Ешқандай A - C емес",
+    "Анықталмайды"
+   ],
+   a: 0
+  },
+  {
+   q: "Қай сан қисынсыз?",
+   options: ["2, 4, 8, 16...", "1, 3, 5, 7...", "10, 20, 30...", "5, 10, 15..."],
+   a: 0
+  },
+  {
+   q: "Егер бүгін дүйсенбі болса, 10 күннен кейін қай күн?",
+   options: ["Сәрсенбі", "Бейсенбі", "Жұма", "Сенбі"],
+   a: 1
+  },
+  {
+   q: "Шындық кестесінде 'ЖӘНЕ' қашан шын?",
+   options: [
+    "Екеуі де шын болса",
+    "Біреуі шын болса",
+    "Екеуі де жалған болса",
+    "Әрқашан шын"
+   ],
+   a: 0
+  },
+  {
+   q: "Сыныпта 10 ұл, 15 қыз бар. Кездейсоқ бір оқушы таңдалды. Қыз болу ықтималдығы?",
+   options: ["0.4", "0.5", "0.6", "0.75"],
+   a: 2
+  }
+ ],
+ angles: [
+  {
+   q: "Сыбайлас бұрыштардың қосындысы?",
+   options: [
+    "90°",
+    "180°",
+    "360°",
+    "270°"
+   ],
+   a: 1
+  },
+  {
+   q: "Вертикаль бұрыштар қалай болады?",
+   options: [
+    "Қосындысы 90°",
+    "Әрқашан тік",
+    "Өзара тең",
+    "Қосындысы 180°"
+   ],
+   a: 2
+  }
+ ]
+};
+
+let bjbList = [];
+let bjbIndex = 0;
+let bjbCorrect = 0;
+let bjbActive = false;
+
+function addMathPoints(amount) {
+ if (typeof data !== "undefined") {
+  data.points += amount;
+  if (typeof save === "function") save();
+ }
+}
+
+function startBJB() {
+ let subject = document.getElementById("bjbSubject").value;
+ bjbList = bjbQuestions[subject];
+ bjbIndex = 0;
+ bjbCorrect = 0;
+ bjbActive = true;
+ document.getElementById("bjbScore").textContent = "";
+ showBJB();
+}
+
+function showBJB() {
+ if (bjbIndex >= bjbList.length) {
+  bjbActive = false;
+  document.getElementById("bjbQuestion").textContent = "🏆 БЖБ аяқталды!";
+  document.getElementById("bjbOptions").innerHTML = "";
+  document.getElementById("bjbScore").textContent = "Нәтиже: " + bjbCorrect + "/5";
+  return;
+ }
+
+ let item = bjbList[bjbIndex];
+ document.getElementById("bjbQuestion").textContent = (bjbIndex + 1) + "/5. " + item.q;
+ 
+ let box = document.getElementById("bjbOptions");
+ box.innerHTML = "";
+ document.getElementById("bjbFeedback").textContent = "";
+
+ item.options.forEach((option, i) => {
+  let btn = document.createElement("button");
+  btn.textContent = option;
+  btn.onclick = () => answerBJB(i);
+  box.appendChild(btn);
+ });
+}
+
+function answerBJB(i) {
+ if (!bjbActive) return;
+ let item = bjbList[bjbIndex];
+ if (i === item.a) {
+  bjbCorrect++;
+  addMathPoints(10);
+ }
+ bjbIndex++;
+ showBJB();
+}
+
+/* Лабиринт */
+const mazeTasks = [
+ { q: "2x+5=15. x=?", a: 5 },
+ { q: "3(x+2)=21. x=?", a: 5 },
+ { q: "2³+4²=?", a: 24 },
+ { q: "5x-7=18. x=?", a: 5 },
+ { q: "4(x-2)=20. x=?", a: 7 }
+];
+
+let mazeIndex = 0;
+let mazeFinished = false;
+
+function startMaze() {
+ mazeIndex = 0;
+ mazeFinished = false;
+ showMaze();
+}
+
+function showMaze() {
+ if (mazeIndex >= mazeTasks.length) {
+  mazeFinished = true;
+  document.getElementById("mazeLevel").textContent = "🏆 Мәреге жеттің!";
+  document.getElementById("mazeQuestion").textContent = "Барлық есікті аштың!";
+  document.getElementById("mazeFeedback").textContent = "🎉 Құттықтаймыз!";
+  return;
+ }
+
+ document.getElementById("mazeLevel").textContent = "🚪 " + (mazeIndex + 1) + "-деңгей";
+ document.getElementById("mazeQuestion").textContent = mazeTasks[mazeIndex].q;
+ document.getElementById("mazeAnswer").value = "";
+ document.getElementById("mazeFeedback").textContent = "";
+}
+
+function checkMaze() {
+ if (mazeFinished) return;
+ let input = document.getElementById("mazeAnswer");
+ if (input.value.trim() === "") return;
+ let value = Number(input.value);
+ if (value === mazeTasks[mazeIndex].a) {
+  addMathPoints(10);
+  mazeIndex++;
+  showMaze();
+ } else {
+  document.getElementById("mazeFeedback").textContent = "❌ Қате! Қайта ойлан.";
+ }
+}
+
+/* Математикалық дүкен */
+const shopTasks = [
+ {
+  q: "Кітап 2000 теңге. 25% жеңілдік болса, бағасы қанша?",
+  a: 1500
+ },
+ {
+  q: "Қалам 300 теңге. 4 қалам қанша тұрады?",
+  a: 1200
+ },
+ {
+  q: "Сөмке 8000 теңге. 10% жеңілдік болса, бағасы қанша?",
+  a: 7200
+ },
+ {
+  q: "Дәптер 250 теңге. 6 дәптер қанша тұрады?",
+  a: 1500
+ },
+ {
+  q: "Ойыншық 5000 теңге. 20% жеңілдік болса, бағасы қанша?",
+  a: 4000
+ }
+];
+
+let shopIndex = 0;
+let shopAnswered = false;
+
+function newShop() {
+ shopIndex = (shopIndex + 1) % shopTasks.length;
+ shopAnswered = false;
+ showShop();
+}
+
+function showShop() {
+ document.getElementById("shopQuestion").textContent = shopTasks[shopIndex].q;
+ document.getElementById("shopAnswer").value = "";
+ document.getElementById("shopFeedback").textContent = "";
+}
+
+function checkShop() {
+ if (shopAnswered) return;
+ let input = document.getElementById("shopAnswer");
+ if (input.value.trim() === "") return;
+ let value = Number(input.value);
+ if (value === shopTasks[shopIndex].a) {
+  addMathPoints(10);
+  shopAnswered = true;
+  document.getElementById("shopFeedback").textContent = "🎉 Дұрыс! +10 ұпай";
+ } else {
+  document.getElementById("shopFeedback").textContent = "❌ Қате! Қайта есепте.";
+ }
+}
+
+startMaze();
+showShop();
 </body>
 </html>
