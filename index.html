@@ -669,5 +669,61 @@ footer {
   color: #7045d8;
 }
 </style>
+<section class="card" id="formulas">
+<h2>📚 7-сынып формулалар әлемі</h2>
+<p>Формуланы таңда, түсіндірмесін оқы!</p>
+
+<select id="formulaSelect" onchange="showFormula()">
+<option value="0">Қысқаша көбейту</option>
+<option value="1">Дәрежелер</option>
+<option value="2">Сызықтық функция</option>
+<option value="3">Статистика</option>
+<option value="4">Геометрия</option>
+</select>
+
+<div id="formulaResult" class="result"></div>
+</section>
+
+<script>
+const formulas = [
+{
+title:"📐 Қысқаша көбейту формулалары",
+text:"(a+b)² = a²+2ab+b²<br>(a-b)² = a²-2ab+b²<br>a²-b² = (a-b)(a+b)",
+example:"(x+3)² = x²+6x+9"
+},
+{
+title:"🔢 Дәрежелердің қасиеттері",
+text:"aᵐ·aⁿ = aᵐ⁺ⁿ<br>aᵐ/aⁿ = aᵐ⁻ⁿ (a≠0)<br>(aᵐ)ⁿ = aᵐⁿ",
+example:"2³·2² = 2⁵ = 32"
+},
+{
+title:"📈 Сызықтық функция",
+text:"y = kx+b",
+example:"y = 2x+3. Егер x=2 болса, y=7"
+},
+{
+title:"📊 Статистика",
+text:"Орташа мән = сандар қосындысы / сандар саны",
+example:"4, 6, 8 сандарының орташа мәні: (4+6+8)/ 3 = 6"
+},
+{
+title:"📏 Геометрия",
+text:"Үшбұрыш бұрыштарының қосындысы = 180°<br>Тік төртбұрыш ауданы: S=ab<br>Үшбұрыш ауданы: S=ah/2",
+example:"a=6, h=4 болса, үшбұрыш ауданы S=12"
+}
+];
+
+function showFormula(){
+let i=Number(document.getElementById("formulaSelect").value);
+let f=formulas[i];
+
+document.getElementById("formulaResult").innerHTML=
+"<h3>"+f.title+"</h3>"+
+"<p>"+f.text+"</p>"+
+"<b>Мысал:</b><p>"+f.example+"</p>";
+}
+
+showFormula();
+</script>
 </body>
 </html>
