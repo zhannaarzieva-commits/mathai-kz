@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathAI KZ 2.0</title>
+    
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f3ff;
+            color: #202447;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            text-align: center;
+            padding: 35px 15px;
+            border-radius: 0 0 30px 30px;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin: 10px;
+        }
+
+        header p { font-size: 16px; }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 20px;
+            margin: 18px 0;
+            box-shadow: 0 5px 20px #27326a15;
+        }
+
+        h2 { color: #4338ca; }
+
+        button {
+            background: linear-gradient(120deg, #2563eb, #7c3aed);
+            color: white;
+            border: 0;
+            padding: 12px 17px;
+            border-radius: 12px;
+            font-size: 15px;
+            margin: 5px 3px;
+            cursor: pointer;
+        }
+
+        button:active { transform: scale(0.97); }
+
+        input, select {
+            padding: 12px;
+            border: 2px solid #ddd6fe;
+            border-radius: 10px;
+            font-size: 16px;
+            max-width: 100%;
+        }
+
+        input[type="number"] { width: 160px; }
+
+        .result {
+            background: #eef2ff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 12px;
+            line-height: 1.7;
+            min-height: 45px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat {
+            background: #eef2ff;
+            padding: 17px;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .stat strong {
+            font-size: 25px;
+            color: #4f46e5;
+            display: block;
+        }
+
+        .bar {
+            height: 22px;
+            background: #ddd6fe;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #progress {
+            height: 100%;
+            width: 0%;
+            background: #22c55e;
+            transition: .4s;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 500px;
+            height: 220px;
+        }
+
+        .small {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🧠 MathAI KZ 2.0</h1>
+        <p>Математиканы жасанды интеллект көмегімен үйрен!</p>
+        <p>🚀 7-сыныпқа арналған ақылды платформа</p>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>👋 Қош келдің!</h2>
+            <p>Атыңды енгіз:</p>
+            <input type="text" id="name" placeholder="Оқушының аты">
+            <button onclick="saveName()">Бастау 🚀</button>
+            <p id="welcome"></p>
+        </div>
+
+        <div class="card">
+            <h2>🤖 Ақылды математика мұғалімі</h2>
+            <p>Тақырыпты таңда:</p>
+            <select id="topic" onchange="newQuestion()">
+                <option value="equation">Теңдеулер</option>
+                <option value="power">Дәрежелер</option>
+                <option value="percent">Пайыздар</option>
+                <option value="negative">Теріс сандар</option>
+            </select>
+
+            <h3 id="question"></h3>
+            <input type="number" id="answer" placeholder="Жауабың" step="any">
+            <br><br>
+
+            <button onclick="check()">✅ Тексеру</button>
+            <button onclick="hint()">💡 Көмек</button>
+            <button onclick="explain()">📖 Түсіндіру</button>
+            <button onclick="newQuestion()">➡️ Жаңа есеп</button>
+
+            <div class="result" id="feedback">Есепті шығарып көр!</div>
+        </div>
+
+        <div class="card">
+            <h2>📷 Фотоесеп</h2>
+            <p>Есептің суретін таңда немесе камерамен түсір.</p>
+            <input type="file" id="photo" accept="image/*" onchange="showPhoto(event)">
+            <br><br>
+            <img id="preview" style="max-width:100%; border-radius:12px;">
+            <p class="small">Бұл нұсқада суретті көрсету жұмыс істейді. Суреттегі есепті автоматты тану кейін қосылады.</p>
+        </div>
+
+        <div class="card">
+            <h2>🎮 Математикалық ойын</h2>
+            <p>60 секундта мүмкіндігінше көп есеп шығар!</p>
+            <h3>⏱️ Уақыт: <span id="timer">60</span> секунд</h3>
+            <h3 id="gameQuestion">Ойынды баста!</h3>
+            <input type="number" id="gameAnswer" placeholder="Жауап">
+            <br><br>
+            <button onclick="startGame()">▶️ Бастау</button>
+            <button onclick="gameCheck()">✅ Жауап беру</button>
+            <p id="gameResult"></p>
+            <p>Ойын ұпайы: <b id="gameScore">0</b></p>
+        </div>
+
+        <div class="card">
+            <h2>🧠 Ақылды тест</h2>
+            <p>Деңгейіңе сәйкес тапсырмалар.</p>
+            <h3 id="testQuestion">Тестті баста!</h3>
+            <div id="testOptions"></div>
+            <button onclick="startTest()">📝 Тест бастау</button>
+            <p id="testResult"></p>
+        </div>
+
+        <div class="card">
+            <h2>🏆 Менің жетістігім</h2>
+            <div class="stats">
+                <div class="stat"><strong id="points">0</strong>Ұпай</div>
+                <div class="stat"><strong id="total">0</strong>Есеп</div>
+                <div class="stat"><strong id="correct">0</strong>Дұрыс жауап</div>
+                <div class="stat"><strong id="level">1</strong>Деңгей</div>
+            </div>
+
+            <h3>📊 Білім көрсеткіші</h3>
+            <p>Дұрыс жауап: <span id="percent">0%</span></p>
+            <div class="bar"><div id="progress"></div></div>
+
+            <h3>📈 Нәтижелер диаграммасы</h3>
+            <canvas id="chart" width="500" height="220"></canvas>
+            <button onclick="resetStats()">🔄 Нәтижені тазалау</button>
+        </div>
+
+        <div class="card">
+            <h2>🥇 Рейтинг</h2>
+            <p>Оқушының жетістігі:</p>
+            <div id="ranking"></div>
+            <p class="small">Бұл рейтинг осы құрылғыдағы оқушының нәтижесін көрсетеді.</p>
+        </div>
+
+        <div class="card">
+            <h2>🔬 Ғылыми тәжірибе</h2>
+            <p>ЖИ көмегімен және дәстүрлі әдіспен математиканы меңгеру нәтижелерін салыстыру.</p>
+            <p>Дәстүрлі әдістегі дұрыс жауап саны:</p>
+            <input type="number" id="traditional" min="0">
+            <p>Цифрлық көмекшімен дұрыс жауап саны:</p>
+            <input type="number" id="aiResult" min="0">
+            <br><br>
+            <button onclick="compare()">📊 Салыстыру</button>
+            <div id="comparison" class="result"></div>
+            <p class="small">Нақты зерттеу нәтижелерін енгіз. Екі топтың тапсырма саны бірдей болуы керек.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        💜 MathAI KZ 2.0 | Ғылыми жоба | 2026
+    </footer>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem("mathai2data") || "null") || {
+            name: "",
+            points: 0,
+            total: 0,
+            correct: 0
+        };
+
+        let current = null;
+        let answered = false;
+
+        function save() {
+            localStorage.setItem("mathai2data", JSON.stringify(data));
+            update();
+        }
+
+        function saveName() {
+            let n = document.getElementById("name").value.trim();
+            if(!n) return alert("Атыңды жаз!");
+            data.name = n;
+            save();
+        }
+
+        function update() {
+            document.getElementById("points").textContent = data.points;
+            document.getElementById("total").textContent = data.total;
+            document.getElementById("correct").textContent = data.correct;
+
+            let p = data.total ? Math.round(data.correct/data.total*100) : 0;
+            document.getElementById("percent").textContent = p + "%";
+            document.getElementById("progress").style.width = p + "%";
+
+            let level = Math.floor(data.points/100) + 1;
+            document.getElementById("level").textContent = level;
+
+            document.getElementById("welcome").textContent = data.name ? `Сәлем, ${data.name}! ⭐` : "";
+            document.getElementById("ranking").textContent = (data.name || "Оқушы") + " — " + data.points + " ұпай 🏆";
+
+            drawChart();
+        }
+
+        function drawChart() {
+            let canvas = document.getElementById("chart");
+            let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, 500, 220);
+
+            let wrong = data.total - data.correct;
+            let max = Math.max(data.correct, wrong, 1);
+
+            let values = [data.correct, wrong];
+            let colors = ["#22c55e", "#ef4444"];
+            let labels = ["Дұрыс", "Қате"];
+
+            values.forEach((v,i) => {
+                let h = v / max * 145;
+                let x = 100 + i * 200;
+                ctx.fillStyle = colors[i];
+                ctx.fillRect(x, 175 - h, 90, h);
+
+                ctx.fillStyle = "#202447";
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(v, x + 45, 165 - h);
+                ctx.fillText(labels[i], x + 45, 200);
+            });
+        }
+
+        function random(a,b) {
+            return Math.floor(Math.random()*(b-a+1))+a;
+        }
+
+        function makeProblem(topic) {
+            let a,b,x;
+            if(topic==="equation") {
+                x = random(1,15);
+                a = random(2,8);
+                b = random(1,20);
+                return {
+                    q: `${a}x + ${b} = ${a*x+b}. x = ?`,
+                    a: x,
+                    hint: `Алдымен +${b} санын азайт.`,
+                    solution: `${a}x = ${a*x}, сондықтан x = ${x}`
+                };
+            }
+            if(topic==="power") {
+                a = random(2,5);
+                b = random(2,3);
+                return {
+                    q: `${a} санының ${b}-дәрежесі нешеге тең?`,
+                    a: a**b,
+                    hint: `Санды өзіне ${b} рет көбейт.`,
+                    solution: `${a}^${b} = ${a**b}`
+                };
+            }
+            if(topic==="percent") {
+                a = random(1,10)*20;
+                b = [10,25,50][random(0,2)];
+                return {
+                    q: `${a} санының ${b}%-ы қанша?`,
+                    a: a*b/100,
+                    hint: `Санды пайызға көбейтіп, 100-ге бөл.`,
+                    solution: `${a} × ${b} / 100 = ${a*b/100}`
+                };
+            }
+            a = random(-20,-1);
+            b = random(1,20);
+            return {
+                q: `(${a}) + ${b} = ?`,
+                a: a+b,
+                hint: `Теріс және оң сандарды қос.`,
+                solution: `${a} + ${b} = ${a+b}`
+            };
+        }
+
+        function newQuestion() {
+            let topic = document.getElementById("topic").value;
+            current = makeProblem(topic);
+            answered = false;
+            document.getElementById("question").textContent = current.q;
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").textContent = "Жауабыңды енгіз!";
+        }
+
+        function check() {
+            let input = document.getElementById("answer");
+            if(input.value.trim()==="") {
+                alert("Жауабыңды жаз!");
+                return;
+            }
+            if(answered) {
+                alert("Бұл есеп тексерілді!");
+                return;
+            }
+            answered = true;
+            data.total++;
+
+            let value = Number(input.value);
+            if(Math.abs(value - current.a) < 0.00001) {
+                data.correct++;
+                data.points += 10;
+                document.getElementById("feedback").textContent = "🎉 Дұрыс! +10 ұпай";
+            } else {
+                document.getElementById("feedback").textContent = "❌ Қате. " + current.solution;
+            }
+            save();
+        }
+
+        function hint() {
+            document.getElementById("feedback").textContent = "💡 " + current.hint;
+        }
+
+        function explain() {
+            document.getElementById("feedback").textContent = "📖 " + current.solution;
+        }
+
+        let gameTime=60, gamePoints=0, gameProblem=null, gameInterval=null;
+
+        function gameNext() {
+            let a = random(1,20), b = random(1,20);
+            gameProblem = a + b;
+            document.getElementById("gameQuestion").textContent = `${a} + ${b} = ?`;
+            document.getElementById("gameAnswer").value = "";
+        }
+
+        function startGame() {
+            clearInterval(gameInterval);
+            gameTime = 60;
+            gamePoints = 0;
+            document.getElementById("gameScore").textContent = 0;
+            document.getElementById("gameResult").textContent = "";
+            document.getElementById("timer").textContent = 60;
+            gameNext();
+
+            gameInterval = setInterval(() => {
+                gameTime--;
+                document.getElementById("timer").textContent = gameTime;
+                if(gameTime <= 0) {
+                    clearInterval(gameInterval);
+                    gameInterval = null;
+                    gameProblem = null;
+                    document.getElementById("gameQuestion").textContent = "⏰ Уақыт бітті!";
+                    document.getElementById("gameResult").textContent = "Жинаған ұпайың: " + gamePoints;
+                }
+            }, 1000);
+        }
+
+        function gameCheck() {
+            if(gameInterval === null) return;
+            let input = document.getElementById("gameAnswer");
+            if(input.value.trim() === "") return;
+
+            if(Number(input.value) === gameProblem) {
+                gamePoints += 10;
+                data.points += 10;
+                document.getElementById("gameScore").textContent = gamePoints;
+                document.getElementById("gameResult").textContent = "🎉 Дұрыс!";
+                save();
+            } else {
+                document.getElementById("gameResult").textContent = "Қайта ойлан!";
+            }
+            gameNext();
+        }
+
+        let testProblem=null, testCount=0, testCorrect=0;
+
+        function startTest() {
+            testCount = 0;
+            testCorrect = 0;
+            nextTest();
+        }
+
+        function nextTest() {
+            if(testCount >= 5) {
+                document.getElementById("testQuestion").textContent = "🏆 Тест аяқталды!";
+                document.getElementById("testOptions").innerHTML = "";
+                document.getElementById("testResult").textContent = "Нәтиже: " + testCorrect + "/5";
+                return;
+            }
+            let topic = data.correct >= 5 ? "equation" : "power";
+            testProblem = makeProblem(topic);
+
+            document.getElementById("testQuestion").textContent = (testCount+1) + "/5. " + testProblem.q;
+            let right = testProblem.a;
+            let options = [right, right+1, right-1, right+2];
+            options.sort(() => Math.random() - .5);
+
+            let box = document.getElementById("testOptions");
+            box.innerHTML = "";
+            options.forEach(value => {
+                let btn = document.createElement("button");
+                btn.textContent = value;
+                btn.onclick = () => testAnswer(value);
+                box.appendChild(btn);
+            });
+        }
+
+        function testAnswer(value) {
+            data.total++;
+            if(value === testProblem.a) {
+                testCorrect++;
+                data.correct++;
+                data.points += 10;
+            }
+            testCount++;
+            save();
+            nextTest();
+        }
+
+        function showPhoto(e) {
+            let file = e.target.files[0];
+            if(!file) return;
+            let img = document.getElementById("preview");
+            img.src = URL.createObjectURL(file);
+            img.onload = () => URL.revokeObjectURL(img.src);
+        }
+
+        function compare() {
+            let a = document.getElementById("traditional").value;
+            let b = document.getElementById("aiResult").value;
+            if(a===""||b==="") {
+                alert("Екі нәтижені де енгіз!");
+                return;
+            }
+            a = Number(a);
+            b = Number(b);
+            if(a<0 || b<0) {
+                alert("Теріс сан енгізбе!");
+                return;
+            }
+            let text = `Дәстүрлі әдіс: ${a} дұрыс жауап. Цифрлық көмекші: ${b} дұрыс жауап. `;
+            if(b > a) {
+                text += `Цифрлық көмекші нәтижесі ${b - a} жауапқа жоғары.`;
+            } else if(a > b) {
+                text += `Дәстүрлі әдіс нәтижесі ${a - b} жауапқа жоғары.`;
+            } else {
+                text += `Нәтижелер бірдей.`;
+            }
+            document.getElementById("comparison").textContent = text;
+        }
+
+        function resetStats() {
+            if(!confirm("Нәтижені өшіресің бе?")) return;
+            data.points = 0;
+            data.total = 0;
+            data.correct = 0;
+            save();
+        }
+
+        document.getElementById("name").value = data.name;
+        update();
+        newQuestion();
+    </script>
+</body>
+</html>
